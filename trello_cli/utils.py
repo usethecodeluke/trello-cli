@@ -1,17 +1,26 @@
 from rich.console import Console, Group
 from rich.table import Table
 from rich.panel import Panel
+from rich.layout import Layout
+from rich.columns import Columns
 from rich.rule import Rule
 
 
 console = Console()
 
 
-def render_card(card_data: dict) -> None:
+def render_card(card_data: dict, render_output: bool = True) -> Panel:
 
     description_body = f"""
-    [b]Description:[/b]
+    [i]Description:[/i]
     {card_data.get("desc")}
+    """
+
+    comments = "\n".join([f"- {x['memberCreator']['fullName']}: {x['data']['text']}" for x in card_data.get("commentData")])
+
+    comment_body = f"""
+    [i]Comments:[/i]
+    {comments}
     """
 
     labels = ", ".join(
@@ -19,24 +28,35 @@ def render_card(card_data: dict) -> None:
     )
 
     label_body = f"""
-    :label:  [b]Labels:[/b]
+    :label:  [i]Labels:[/i]
     {labels}
     """
 
-    rule = Rule()
-
     panel_group = Group(
         description_body,
-        rule,
+        comment_body,
         label_body,
+        fit=False,
     )
     panel = Panel(
         renderable=panel_group,
         expand=False,
-        title=card_data.get("name"),
+        title="[b]" + card_data.get("name") + "[/b]",
+        subtitle=card_data.get("id"),
         title_align="left",
+        subtitle_align="right",
     )
-    console.print(panel)
+    if render_output:
+        console.print(panel)
+    return panel
+
+
+def render_cards(card_data: dict) -> None:
+    column = Columns(column_first=True)
+    for card in card_data:
+        panel = render_card(card, False)
+        column.add_renderable(panel)
+    console.print(column)
 
 
 def render_board_list(board_list_data: dict) -> None:
@@ -69,9 +89,50 @@ def render_lists_list(lists_list_data: dict) -> None:
     console.print(table)
 
 
+def render_labels_list(labels_list_data: dict) -> None:
+    table = Table(title="Trello labels")
+    table.add_column("Label Name")
+    table.add_column("color")
+    table.add_column("Label ID")
+    table.add_column("Board ID")
+    for l in labels_list_data:
+        table.add_row(
+            l.get("name"),
+            l.get("color"),
+            l.get("id"),
+            l.get("idBoard"),
+        )
+    console.print(table)
+
+
+def render_label(label_data: dict) -> None:
+    pass
+
+
+def render_list(list_data: dict, render_output: bool = True) -> None:
+    column = Columns(title=list_data.get("name"), column_first=True, expand=True)
+    for card in list_data.get("cardData"):
+        panel = render_card(card, False)
+        column.add_renderable(panel)
+    if not list_data.get("cardData"):
+        column.add_renderable(Rule(title="No Cards"))
+    if render_output:
+        console.print(column)
+    return column
+
+
 def render_board(board_data: dict) -> None:
-    pass
-
-
-def render_list(list_data: dict) -> None:
-    pass
+    layout = Layout(name="board")
+    layout.split(
+        Layout(name="header", size=1),
+        Layout(name="body"),
+    )
+    layout["header"].update(
+        Rule(title=board_data.get("name"))
+    )
+    columns = []
+    for each in board_data.get("listData"):
+        column = render_list(each, False)
+        columns.append(column)
+    layout["body"].split_row(*[Layout(column) for column in columns])
+    console.print(layout)

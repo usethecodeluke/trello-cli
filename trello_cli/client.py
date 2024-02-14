@@ -1,6 +1,7 @@
-import typer
+import json
 
-from requests import get, post, RequestException
+import typer
+from requests import get, post, HTTPError
 from rich import print
 
 
@@ -17,20 +18,71 @@ class TrelloClient:
         result = self.execute_get(url=f"{self.api_url}/members/me/boards")
         return result
 
-    def get_board(self, board_id: str) -> dict:
+    def get_board_by_id(self, board_id: str) -> dict:
         result = self.execute_get(url=f"{self.api_url}/board/{board_id}")
         return result
 
-    def get_lists(self, board_id: str) -> dict:
+    def get_lists_by_board_id(self, board_id: str) -> dict:
         result = self.execute_get(url=f"{self.api_url}/board/{board_id}/lists")
         return result
 
-    def get_card(self, card_id: str) -> dict:
+    def get_list_by_id(self, list_id: str) -> dict:
+        result = self.execute_get(url=f"{self.api_url}/lists/{list_id}")
+        return result
+
+    def get_cards_by_board_id(self, board_id: str) -> dict:
+        result = self.execute_get(url=f"{self.api_url}/boards/{board_id}/cards")
+        return result
+
+    def get_cards_by_list_id(self, list_id: str) -> dict:
+        result = self.execute_get(url=f"{self.api_url}/lists/{list_id}/cards")
+        return result
+
+    def get_card_by_id(self, card_id: str) -> dict:
         result = self.execute_get(url=f"{self.api_url}/cards/{card_id}")
+        return result
+
+    def get_comments_by_card_id(self, card_id: str) -> dict:
+        params = {'filter': 'commentCard,copyCommentCard'}
+        result = self.execute_get(url=f"{self.api_url}/cards/{card_id}/actions", params=params)
+        return result
+
+    def get_comments_by_list_id(self, list_id: str) -> dict:
+        params = {'filter': 'commentCard,copyCommentCard'}
+        result = self.execute_get(url=f"{self.api_url}/lists/{list_id}/actions", params=params)
+        return result
+
+    def get_comments_by_board_id(self, board_id: str) -> dict:
+        params = {'filter': 'commentCard,copyCommentCard'}
+        result = self.execute_get(url=f"{self.api_url}/boards/{board_id}/actions", params=params)
+        return result
+
+    def get_labels_by_board_id(self, board_id: str) -> dict:
+        result = self.execute_get(url=f"{self.api_url}/boards/{board_id}/labels")
         return result
 
     def post_card(self, title: str, body: dict, headers: dict, params: dict) -> dict:
         pass
+
+    def post_label(self, board_id: str, name: str, color:str) -> dict:
+        data = {'name': name, 'idBoard': board_id, 'color': color}
+        result = self.execute_post(url=f"{self.api_url}/labels", data=data)
+        return result
+
+    def post_label_to_card(self, card_id: str, name: str, color:str) -> dict:
+        data = {'name': name, 'color': color}
+        result = self.execute_post(url=f"{self.api_url}/cards/{card_id}/labels", data=data)
+        return result
+
+    def post_label_id_to_card(self, card_id: str, label_id: str) -> dict:
+        data = {'value': label_id}
+        result = self.execute_post(url=f"{self.api_url}/cards/{card_id}/idLabels", data=data)
+        return result
+
+    def post_comment_to_card(self, card_id: str, comment: str) -> dict:
+        data = {'text': comment}
+        result = self.execute_post(url=f"{self.api_url}/cards/{card_id}/actions/comments", data=data)
+        return result
 
     def execute_get(
         self,
@@ -60,9 +112,9 @@ class TrelloClient:
             )
             res.raise_for_status()
             val = res.json()
-        except RequestException as exc:
+        except HTTPError as exc:
             print(exc.strerror)
-            typer.Abort(code=1)
+            typer.Abort(1)
 
         return val
 
@@ -93,12 +145,12 @@ class TrelloClient:
                 url,
                 params=params,
                 headers=headers,
-                data=data,
+                data=json.dumps(data),
             )
             res.raise_for_status()
             val = res.json()
-        except RequestException as exc:
+        except HTTPError as exc:
             print(exc.strerror)
-            typer.Abort(code=1)
+            typer.Abort(1)
 
         return val
