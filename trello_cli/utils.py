@@ -53,3 +53,25 @@ def render_board_list(board_list_data: dict) -> None:
             ":star:" if board.get("starred") else ":x:"
         )
     console.print(table)
+
+
+def render_lists_list(lists_list_data: dict) -> None:
+    table = Table(title="Trello Lists")
+    table.add_column("List Name")
+    table.add_column("List ID")
+    table.add_column("Board ID")
+    for l in lists_list_data:
+        table.add_row(
+            l.get("name"),
+            l.get("id"),
+            l.get("idBoard"),
+        )
+    console.print(table)
+
+
+def render_board(board_data: dict) -> None:
+    pass
+
+
+def render_list(list_data: dict) -> None:
+    pass

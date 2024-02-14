@@ -17,6 +17,14 @@ class TrelloClient:
         result = self.execute_get(url=f"{self.api_url}/members/me/boards")
         return result
 
+    def get_board(self, board_id: str) -> dict:
+        result = self.execute_get(url=f"{self.api_url}/board/{board_id}")
+        return result
+
+    def get_lists(self, board_id: str) -> dict:
+        result = self.execute_get(url=f"{self.api_url}/board/{board_id}/lists")
+        return result
+
     def get_card(self, card_id: str) -> dict:
         result = self.execute_get(url=f"{self.api_url}/cards/{card_id}")
         return result

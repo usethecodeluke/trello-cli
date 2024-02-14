@@ -7,7 +7,13 @@ from rich.console import Console
 
 from config import get_config
 from client import TrelloClient
-from utils import render_card, render_board_list
+from utils import (
+    render_card,
+    render_board,
+    render_list,
+    render_board_list,
+    render_lists_list,
+)
 
 console = Console()
 config = get_config()
@@ -37,7 +43,7 @@ def callback():
 
 
 @app.command()
-def get_boards(is_json: Annotated[bool, typer.Option("--json")] = False) -> None:
+def get_boards(is_json: Annotated[bool, typer.Option("--json", help="render output in JSON")] = False) -> None:
     """
     Fetch all Trello boards for the authenticated user.
     """
@@ -49,23 +55,41 @@ def get_boards(is_json: Annotated[bool, typer.Option("--json")] = False) -> None
 
 
 @app.command()
-def get_board(board_id: Annotated[str, typer.Argument()]) -> None:
+def get_board(
+    board_id: Annotated[str, typer.Argument()],
+    is_json: Annotated[bool, typer.Option("--json", help="render output in JSON")] = False,
+) -> None:
     """
     Fetch a Trello board by id.
     """
-    pass
+    board = client.get_board(board_id)
+    if is_json:
+        console.print_json(data=board)
+        return
+    lists = client.get_lists(board_id)
+    render_board(board, lists)
 
 
 @app.command()
-def get_lists(board_id: Annotated[str, typer.Argument()]) -> None:
+def get_lists(
+    board_id: Annotated[str, typer.Argument()],
+    is_json: Annotated[bool, typer.Option("--json", help="render output in JSON")] = False,
+) -> None:
     """
     Fetch the Trello lists for a given board id.
     """
-    pass
+    lists = client.get_lists(board_id)
+    if is_json:
+        console.print_json(data=lists)
+        return
+    render_lists_list(lists)
 
 
 @app.command()
-def get_list(list_id: Annotated[str, typer.Argument()]) -> None:
+def get_list(
+    list_id: Annotated[str, typer.Argument()],
+    is_json: Annotated[bool, typer.Option("--json", help="render output in JSON")] = False,
+) -> None:
     """
     Fetch a Trello list by id.
     """
@@ -75,7 +99,7 @@ def get_list(list_id: Annotated[str, typer.Argument()]) -> None:
 @app.command()
 def get_card(
     card_id: Annotated[str, typer.Argument()],
-    is_json: Annotated[bool, typer.Option("--json")] = False,
+    is_json: Annotated[bool, typer.Option("--json", help="render output in JSON")] = False,
 ) -> None:
     """
     Fetch a card using the id field.
@@ -93,6 +117,7 @@ def create_card(
     body: Annotated[str, typer.Argument()],
     labels: Annotated[List[str], typer.Option()],
     comments: Annotated[List[str], typer.Option()],
+    is_json: Annotated[bool, typer.Option("--json", help="render output in JSON")] = False,
 ) -> None:
     """
     Create a new card on a Trello board.
@@ -104,6 +129,7 @@ def create_card(
 def add_card_labels(
     card_id: Annotated[str, typer.Argument()],
     labels: Annotated[List[str], typer.Argument()],
+    is_json: Annotated[bool, typer.Option("--json", help="render output in JSON")] = False,
 ) -> None:
     """
     Attach labels to a card.
