@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "trello-cli"
-version = "0.1.0"
+version = "0.1.1"
 description = "A simple CLI based application for working with Trello."
 authors = ["Justin Wood <root@justinwood.info>"]
 readme = "README.md"
