@@ -10,7 +10,16 @@ Requests is a popular library for managing network requests and responses.
 
 ## Documentation
 
-For usage documentation please refer to [USAGE.md](USAGE.md)
+### Installing
+
+It is recommended that you install the application using poetry and the included dist files:
+```
+poetry install
+```
+This will create an executable in your shell environment `trello-cli`
+If you prefer to run the app without installing, please use the following syntax: `python -m trello_cli` from the projects root directory.
+
+For usage documentation on individual functions please refer to [USAGE.md](USAGE.md)
 
 API_KEY and API_TOKEN must be set through either env variables or a .env file in your execution directory.
 the format of the .env file is as follows:
@@ -19,6 +28,10 @@ the format of the .env file is as follows:
 api_key="xxxxxxxx"
 api_token="xxxxxxxxx"
 ```
+
+Tests may be run by ensuring the dev group dependencies are installed with: `poetry install --with dev`
+
+Then run the test suite with: `pytest tests/.`
 
 ## TODO
 
