@@ -13,13 +13,13 @@ def render_card(card_data: dict, render_output: bool = True) -> Panel:
 
     description_body = f"""
     [i]Description:[/i]
-    {card_data.get("desc")}
+    {card_data.get("desc", "")}
     """
 
     comments = "\n    ".join(
         [
             f"- {x['memberCreator']['fullName']}: {x['data']['text']}"
-            for x in card_data.get("commentData")
+            for x in card_data.get("commentData", [])
         ]
     )
 
@@ -29,7 +29,7 @@ def render_card(card_data: dict, render_output: bool = True) -> Panel:
     """
 
     labels = ", ".join(
-        [f"[{x['color']}]{x['name']}[/{x['color']}]" for x in card_data.get("labels")]
+        [f"[{x['color']}]{x['name']}[/{x['color']}]" for x in card_data.get("labels", [])]
     )
 
     label_body = f"""
@@ -46,7 +46,7 @@ def render_card(card_data: dict, render_output: bool = True) -> Panel:
     panel = Panel(
         renderable=panel_group,
         expand=False,
-        title="[b]" + card_data.get("name") + "[/b]",
+        title="[b]" + card_data.get("name", "") + "[/b]",
         subtitle=card_data.get("id"),
         title_align="left",
         subtitle_align="right",
@@ -112,11 +112,12 @@ def render_labels_list(labels_list_data: dict) -> None:
 
 def render_list(list_data: dict, render_output: bool = True) -> Columns:
     column = Columns(title=list_data.get("name"), column_first=True, expand=True)
-    for card in list_data.get("cardData"):
+    card_data = list_data.get("cardData", [])
+    if not card_data:
+        column.add_renderable(Rule(title="No Cards"))
+    for card in card_data:
         panel = render_card(card, False)
         column.add_renderable(panel)
-    if not list_data.get("cardData"):
-        column.add_renderable(Rule(title="No Cards"))
     if render_output:
         console.print(column)
     return column
@@ -130,7 +131,7 @@ def render_board(board_data: dict) -> None:
     )
     layout["header"].update(Rule(title=board_data.get("name")))
     columns = []
-    for each in board_data.get("listData"):
+    for each in board_data.get("listData", []):
         column = render_list(each, False)
         columns.append(column)
     layout["body"].split_row(*[Layout(column) for column in columns])
