@@ -525,13 +525,13 @@ jupyter = ["ipywidgets (>=7.5.1,<9)"]
 
 [[package]]
 name = "shellingham"
-version = "1.5.4"
+version = "1.4.0"
 description = "Tool to Detect Surrounding Shell"
 optional = false
-python-versions = ">=3.7"
+python-versions = "!=3.0,!=3.1,!=3.2,!=3.3,>=2.6"
 files = [
-    {file = "shellingham-1.5.4-py2.py3-none-any.whl", hash = "sha256:7ecfff8f2fd72616f7481040475a65b2bf8af90a56c89140852d1120324e8686"},
-    {file = "shellingham-1.5.4.tar.gz", hash = "sha256:8dbca0739d487e5bd35ab3ca4b36e11c4078f3a234bfce294b0a0291363404de"},
+    {file = "shellingham-1.4.0-py2.py3-none-any.whl", hash = "sha256:536b67a0697f2e4af32ab176c00a50ac2899c5a05e0d8e2dadac8e58888283f9"},
+    {file = "shellingham-1.4.0.tar.gz", hash = "sha256:4855c2458d6904829bd34c299f11fdeed7cfefbf8a2c522e4caea6cd76b3171e"},
 ]
 
 [[package]]
@@ -557,6 +557,26 @@ all = ["colorama (>=0.4.3,<0.5.0)", "rich (>=10.11.0,<14.0.0)", "shellingham (>=
 dev = ["autoflake (>=1.3.1,<2.0.0)", "flake8 (>=3.8.3,<4.0.0)", "pre-commit (>=2.17.0,<3.0.0)"]
 doc = ["cairosvg (>=2.5.2,<3.0.0)", "mdx-include (>=1.4.1,<2.0.0)", "mkdocs (>=1.1.2,<2.0.0)", "mkdocs-material (>=8.1.4,<9.0.0)", "pillow (>=9.3.0,<10.0.0)"]
 test = ["black (>=22.3.0,<23.0.0)", "coverage (>=6.2,<7.0)", "isort (>=5.0.6,<6.0.0)", "mypy (==0.910)", "pytest (>=4.4.0,<8.0.0)", "pytest-cov (>=2.10.0,<5.0.0)", "pytest-sugar (>=0.9.4,<0.10.0)", "pytest-xdist (>=1.32.0,<4.0.0)", "rich (>=10.11.0,<14.0.0)", "shellingham (>=1.3.0,<2.0.0)"]
+
+[[package]]
+name = "typer-cli"
+version = "0.0.14"
+description = "Run Typer scripts with completion, without having to create a package, using Typer CLI."
+optional = false
+python-versions = ">=3.7"
+files = []
+develop = false
+
+[package.dependencies]
+colorama = ">=0.4.3,<=0.5.0"
+shellingham = ">=1.3.2,<=1.5.0"
+typer = ">=0.4.0,<=0.9.0"
+
+[package.source]
+type = "git"
+url = "https://github.com/Patarimi/typer-cli.git"
+reference = "f44b547"
+resolved_reference = "f44b547a0b9ea71e5c7b2dc7d4c1ab1212394e5e"
 
 [[package]]
 name = "typing-extensions"
@@ -589,4 +609,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "336a44b67002f315a3bc9ea9180826a0e92d01cc588b8502e9334b0e84a9912f"
+content-hash = "9587007fb30df17a2efc8923ca4c5e3f65d0624a59037c5169d94d5e76e2bac6"

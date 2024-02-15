@@ -1,3 +1,4 @@
+import sys
 import json
 
 import typer
@@ -43,45 +44,65 @@ class TrelloClient:
         return result
 
     def get_comments_by_card_id(self, card_id: str) -> dict:
-        params = {'filter': 'commentCard,copyCommentCard'}
-        result = self.execute_get(url=f"{self.api_url}/cards/{card_id}/actions", params=params)
+        params = {"filter": "commentCard,copyCommentCard"}
+        result = self.execute_get(
+            url=f"{self.api_url}/cards/{card_id}/actions", params=params
+        )
         return result
 
     def get_comments_by_list_id(self, list_id: str) -> dict:
-        params = {'filter': 'commentCard,copyCommentCard'}
-        result = self.execute_get(url=f"{self.api_url}/lists/{list_id}/actions", params=params)
+        params = {"filter": "commentCard,copyCommentCard"}
+        result = self.execute_get(
+            url=f"{self.api_url}/lists/{list_id}/actions", params=params
+        )
         return result
 
     def get_comments_by_board_id(self, board_id: str) -> dict:
-        params = {'filter': 'commentCard,copyCommentCard'}
-        result = self.execute_get(url=f"{self.api_url}/boards/{board_id}/actions", params=params)
+        params = {"filter": "commentCard,copyCommentCard"}
+        result = self.execute_get(
+            url=f"{self.api_url}/boards/{board_id}/actions", params=params
+        )
         return result
 
     def get_labels_by_board_id(self, board_id: str) -> dict:
         result = self.execute_get(url=f"{self.api_url}/boards/{board_id}/labels")
         return result
 
-    def post_card(self, title: str, body: dict, headers: dict, params: dict) -> dict:
-        pass
+    def post_card(self, name: str, body: dict, list_id: str, label_ids: list) -> dict:
+        labels = ",".join([id for id in label_ids])
+        data = {
+            "name": name,
+            "idList": list_id,
+            "desc": body,
+            "idLabels": labels,
+        }
+        result = self.execute_post(url=f"{self.api_url}/cards", data=data)
+        return result
 
-    def post_label(self, board_id: str, name: str, color:str) -> dict:
-        data = {'name': name, 'idBoard': board_id, 'color': color}
+    def post_label(self, board_id: str, name: str, color: str) -> dict:
+        data = {"name": name, "idBoard": board_id, "color": color}
         result = self.execute_post(url=f"{self.api_url}/labels", data=data)
         return result
 
-    def post_label_to_card(self, card_id: str, name: str, color:str) -> dict:
-        data = {'name': name, 'color': color}
-        result = self.execute_post(url=f"{self.api_url}/cards/{card_id}/labels", data=data)
+    def post_label_to_card(self, card_id: str, name: str, color: str) -> dict:
+        data = {"name": name, "color": color}
+        result = self.execute_post(
+            url=f"{self.api_url}/cards/{card_id}/labels", data=data
+        )
         return result
 
     def post_label_id_to_card(self, card_id: str, label_id: str) -> dict:
-        data = {'value': label_id}
-        result = self.execute_post(url=f"{self.api_url}/cards/{card_id}/idLabels", data=data)
+        data = {"value": label_id}
+        result = self.execute_post(
+            url=f"{self.api_url}/cards/{card_id}/idLabels", data=data
+        )
         return result
 
     def post_comment_to_card(self, card_id: str, comment: str) -> dict:
-        data = {'text': comment}
-        result = self.execute_post(url=f"{self.api_url}/cards/{card_id}/actions/comments", data=data)
+        data = {"text": comment}
+        result = self.execute_post(
+            url=f"{self.api_url}/cards/{card_id}/actions/comments", data=data
+        )
         return result
 
     def execute_get(
@@ -113,9 +134,8 @@ class TrelloClient:
             res.raise_for_status()
             val = res.json()
         except HTTPError as exc:
-            print(exc.strerror)
-            typer.Abort(1)
-
+            print(str(exc))
+            sys.exit(1)
         return val
 
     def execute_post(
@@ -150,7 +170,6 @@ class TrelloClient:
             res.raise_for_status()
             val = res.json()
         except HTTPError as exc:
-            print(exc.strerror)
-            typer.Abort(1)
-
+            print(str(exc))
+            sys.exit(1)
         return val

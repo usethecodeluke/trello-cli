@@ -16,7 +16,12 @@ def render_card(card_data: dict, render_output: bool = True) -> Panel:
     {card_data.get("desc")}
     """
 
-    comments = "\n".join([f"- {x['memberCreator']['fullName']}: {x['data']['text']}" for x in card_data.get("commentData")])
+    comments = "\n    ".join(
+        [
+            f"- {x['memberCreator']['fullName']}: {x['data']['text']}"
+            for x in card_data.get("commentData")
+        ]
+    )
 
     comment_body = f"""
     [i]Comments:[/i]
@@ -70,7 +75,7 @@ def render_board_list(board_list_data: dict) -> None:
             board.get("name"),
             board.get("id"),
             board.get("dateLastActivity"),
-            ":star:" if board.get("starred") else ":x:"
+            ":star:" if board.get("starred") else ":x:",
         )
     console.print(table)
 
@@ -105,11 +110,7 @@ def render_labels_list(labels_list_data: dict) -> None:
     console.print(table)
 
 
-def render_label(label_data: dict) -> None:
-    pass
-
-
-def render_list(list_data: dict, render_output: bool = True) -> None:
+def render_list(list_data: dict, render_output: bool = True) -> Columns:
     column = Columns(title=list_data.get("name"), column_first=True, expand=True)
     for card in list_data.get("cardData"):
         panel = render_card(card, False)
@@ -127,9 +128,7 @@ def render_board(board_data: dict) -> None:
         Layout(name="header", size=1),
         Layout(name="body"),
     )
-    layout["header"].update(
-        Rule(title=board_data.get("name"))
-    )
+    layout["header"].update(Rule(title=board_data.get("name")))
     columns = []
     for each in board_data.get("listData"):
         column = render_list(each, False)

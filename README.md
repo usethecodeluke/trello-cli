@@ -8,4 +8,18 @@ Pydantic brings type validation to Python, and helps to ensure objects are consi
 
 Requests is a popular library for managing network requests and responses.
 
-#TODO: Add sections on usage and configuration.
+## Documentation
+
+For usage documentation please refer to [USAGE.md](USAGE.md)
+
+API_KEY and API_TOKEN must be set through either env variables or a .env file in your execution directory.
+the format of the .env file is as follows:
+
+```
+api_key="xxxxxxxx"
+api_token="xxxxxxxxx"
+```
+
+## TODO
+
+Next steps on this project would be to implement delete and update functionality for comments, archival and movement for cards, and to expand test coverage significantly.

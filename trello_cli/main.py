@@ -6,9 +6,9 @@ from typing_extensions import Annotated
 import typer
 from rich.console import Console
 
-from config import get_config
-from client import TrelloClient
-from utils import (
+from .config import get_config
+from .client import TrelloClient
+from .utils import (
     render_card,
     render_cards,
     render_board,
@@ -20,15 +20,15 @@ from utils import (
 
 
 class Colors(str, Enum):
-    green = "green",
-    yellow = "yellow",
-    orange = "orange",
-    red = "red",
-    purple = "purple",
-    blue = "blue",
-    sky = "sky",
-    lime = "lime",
-    pink = "pink",
+    green = ("green",)
+    yellow = ("yellow",)
+    orange = ("orange",)
+    red = ("red",)
+    purple = ("purple",)
+    blue = ("blue",)
+    sky = ("sky",)
+    lime = ("lime",)
+    pink = ("pink",)
     black = "black"
 
 
@@ -56,7 +56,7 @@ client = TrelloClient(
 def callback():
     """
     A simple CLI for interacting with Trello Cards.
-    
+
     Current capabilities allow for:\n
         - Listing boards, lists, and cards\n
         - Viewing a board, list, or card\n
@@ -70,7 +70,11 @@ def callback():
 
 
 @app.command()
-def get_boards(is_json: Annotated[bool, typer.Option("--json", help="render output in JSON")] = False) -> None:
+def get_boards(
+    is_json: Annotated[
+        bool, typer.Option("--json", help="render output in JSON")
+    ] = False
+) -> None:
     """
     Fetch all Trello boards for the authenticated user.
     """
@@ -84,7 +88,9 @@ def get_boards(is_json: Annotated[bool, typer.Option("--json", help="render outp
 @app.command()
 def get_board(
     board_id: Annotated[str, typer.Argument(help="the board id")],
-    is_json: Annotated[bool, typer.Option("--json", help="render output in JSON")] = False,
+    is_json: Annotated[
+        bool, typer.Option("--json", help="render output in JSON")
+    ] = False,
 ) -> None:
     """
     Fetch a Trello board by id.
@@ -96,14 +102,14 @@ def get_board(
     for comment in comments:
         for card in cards:
             if not "commentData" in card.keys():
-                    card["commentData"] = []
+                card["commentData"] = []
             if comment["data"]["card"]["id"] == card["id"]:
                 card["commentData"].append(comment)
                 continue
     for card in cards:
         for x in lists:
             if not "cardData" in x.keys():
-                    x["cardData"] = []
+                x["cardData"] = []
             if card["idList"] == x["id"]:
                 x["cardData"].append(card)
                 continue
@@ -117,8 +123,12 @@ def get_board(
 
 @app.command()
 def get_lists(
-    board_id: Annotated[str, typer.Argument(help="the board id to retrieve lists from")],
-    is_json: Annotated[bool, typer.Option("--json", help="render output in JSON")] = False,
+    board_id: Annotated[
+        str, typer.Argument(help="the board id to retrieve lists from")
+    ],
+    is_json: Annotated[
+        bool, typer.Option("--json", help="render output in JSON")
+    ] = False,
 ) -> None:
     """
     Fetch the Trello lists for a given board id.
@@ -133,7 +143,9 @@ def get_lists(
 @app.command()
 def get_list(
     list_id: Annotated[str, typer.Argument(help="the list id")],
-    is_json: Annotated[bool, typer.Option("--json", help="render output in JSON")] = False,
+    is_json: Annotated[
+        bool, typer.Option("--json", help="render output in JSON")
+    ] = False,
 ) -> None:
     """
     Fetch a Trello list by id.
@@ -156,9 +168,16 @@ def get_list(
 
 @app.command()
 def get_cards(
-    board_id: Annotated[str, typer.Argument(help="the board id to retrieve cards from")],
-    list_id: Annotated[Optional[str], typer.Argument(help="optionally provide list_id to filter results by list")] = None,
-    is_json: Annotated[bool, typer.Option("--json", help="render output in JSON")] = False,
+    board_id: Annotated[
+        str, typer.Argument(help="the board id to retrieve cards from")
+    ],
+    list_id: Annotated[
+        Optional[str],
+        typer.Argument(help="optionally provide list_id to filter results by list"),
+    ] = None,
+    is_json: Annotated[
+        bool, typer.Option("--json", help="render output in JSON")
+    ] = False,
 ) -> None:
     """
     Fetch a card using the id field.
@@ -176,7 +195,9 @@ def get_cards(
 @app.command()
 def get_card(
     card_id: Annotated[str, typer.Argument(help="the card id")],
-    is_json: Annotated[bool, typer.Option("--json", help="render output in JSON")] = False,
+    is_json: Annotated[
+        bool, typer.Option("--json", help="render output in JSON")
+    ] = False,
 ) -> None:
     """
     Fetch a card using the id field.
@@ -192,22 +213,36 @@ def get_card(
 
 @app.command()
 def create_card(
-    title: Annotated[str, typer.Argument()],
-    body: Annotated[str, typer.Argument()],
-    labels: Annotated[List[str], typer.Option()],
-    comments: Annotated[List[str], typer.Option()],
-    is_json: Annotated[bool, typer.Option("--json", help="render output in JSON")] = False,
+    title: Annotated[str, typer.Argument(help="the title of the card")],
+    body: Annotated[str, typer.Argument(help="a description for the card")],
+    list_id: Annotated[
+        str, typer.Argument(help="the id of the list the card should be added to")
+    ],
+    label_ids: Annotated[
+        List[str], typer.Option(help="the board id to retrieve lists from")
+    ] = [],
+    is_json: Annotated[
+        bool, typer.Option("--json", help="render output in JSON")
+    ] = False,
 ) -> None:
     """
     Create a new card on a Trello board.
     """
-    pass
+    result = client.post_card(title, body, list_id, label_ids)
+    if is_json:
+        console.print_json(data=result)
+        return
+    render_card(result)
 
 
 @app.command()
 def get_labels(
-    board_id: Annotated[str, typer.Argument(help="the board id to retrieve labels for")],
-    is_json: Annotated[bool, typer.Option("--json", help="render output in JSON")] = False,
+    board_id: Annotated[
+        str, typer.Argument(help="the board id to retrieve labels for")
+    ],
+    is_json: Annotated[
+        bool, typer.Option("--json", help="render output in JSON")
+    ] = False,
 ) -> None:
     """
     Fetch the labels for a given Trello board id.
@@ -223,8 +258,12 @@ def get_labels(
 def add_label(
     board_id: Annotated[str, typer.Argument(help="the board id to add the label to")],
     name: Annotated[str, typer.Argument(help="the name of the label (title)")],
-    color: Annotated[Colors, typer.Argument(help="the color to associate with the label")],
-    is_json: Annotated[bool, typer.Option("--json", help="render output in JSON")] = False,
+    color: Annotated[
+        Colors, typer.Argument(help="the color to associate with the label")
+    ],
+    is_json: Annotated[
+        bool, typer.Option("--json", help="render output in JSON")
+    ] = False,
 ) -> None:
     """
     Define the labels available for a board.
@@ -239,8 +278,12 @@ def add_label(
 @app.command()
 def add_label_to_card(
     card_id: Annotated[str, typer.Argument(help="the card id to attach label to")],
-    label_id: Annotated[str, typer.Argument(help="a label id to associate with a card")],
-    is_json: Annotated[bool, typer.Option("--json", help="render output in JSON")] = False,
+    label_id: Annotated[
+        str, typer.Argument(help="a label id to associate with a card")
+    ],
+    is_json: Annotated[
+        bool, typer.Option("--json", help="render output in JSON")
+    ] = False,
 ) -> None:
     """
     Attach label to a card.
@@ -254,5 +297,23 @@ def add_label_to_card(
         return
     render_card(card)
 
-if __name__ == "__main__":
-    app()
+
+@app.command()
+def add_comment_to_card(
+    card_id: Annotated[str, typer.Argument(help="the card id to attach label to")],
+    comment: Annotated[str, typer.Argument(help="a comment to attach to a card")],
+    is_json: Annotated[
+        bool, typer.Option("--json", help="render output in JSON")
+    ] = False,
+) -> None:
+    """
+    Attach label to a card.
+    """
+    data = client.post_comment_to_card(card_id, comment)
+    card = client.get_card_by_id(card_id)
+    comments = client.get_comments_by_card_id(card_id)
+    card["commentData"] = comments
+    if is_json:
+        console.print_json(data=card)
+        return
+    render_card(card)
